@@ -25,7 +25,7 @@ export default function Home() {
             <label className="visually-hidden" htmlFor="subscriber-email">Email address</label>
             <div className="form-field"><input id="subscriber-email" name="email" type="email" autoComplete="email" placeholder="Your email address" required maxLength={254}/><button type="submit" aria-label="Join the list">JOIN THE LIST <span aria-hidden="true">↗</span></button></div>
           </form>
-          <small>By joining, you agree to receive occasional launch updates from Radiant Cross. Unsubscribe anytime.</small>
+          <small>By joining, you agree to receive occasional launch updates from Radiant Cross. You can request removal from the list anytime by email.</small>
         </div>
       </div>
       <div className="right-graphic" aria-hidden="true"><Cross/><span>RC / 001</span></div>
