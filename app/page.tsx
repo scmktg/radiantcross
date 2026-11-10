@@ -2,57 +2,69 @@
 
 import { useState } from "react";
 
-function NailCross({ className = "" }: { className?: string }) {
+function Cross({ className = "" }: { className?: string }) {
   return <svg className={className} viewBox="0 0 80 140" fill="none" aria-label="Radiant Cross symbol" role="img"><path d="M38 3 43 3 43 43 72 42 78 46 72 50 43 49 41 137 38 49 8 50 2 46 8 42 38 43Z" fill="currentColor"/></svg>;
 }
-function SouthernCross({ className = "" }: { className?: string }) {
-  const star=(x:number,y:number,r:number,points:number,inner=.46)=>{const d=Array.from({length:points*2},(_,i)=>{const a=-Math.PI/2+i*Math.PI/points,rr=i%2?r*inner:r;return `${i===0?"M":"L"}${(x+Math.cos(a)*rr).toFixed(2)} ${(y+Math.sin(a)*rr).toFixed(2)}`}).join(" ")+"Z";return <path key={x+"-"+y} d={d}/>};
-  return <svg className={className} viewBox="0 0 120 125" fill="currentColor" role="img" aria-label="Southern Cross stars">{star(60,15,12,7)}{star(22,59,11,7)}{star(95,52,11,7)}{star(61,106,12,7)}{star(70,70,5,5)}</svg>;
+function Stars({ className = "" }: { className?: string }) {
+  const pts=[[60,16,11],[23,58,10],[95,50,10],[61,106,11],[70,72,5]];
+  return <svg className={className} viewBox="0 0 120 125" role="img" aria-label="Southern Cross" fill="currentColor">{pts.map(([x,y,r],i)=><path key={i} d={Array.from({length:10},(_,n)=>{const a=-Math.PI/2+n*Math.PI/5,rr=n%2?r*.45:r;return (n?"L":"M")+(x+Math.cos(a)*rr)+","+(y+Math.sin(a)*rr)}).join(" ")+"Z"}/>)}</svg>;
 }
-function Shirt({className=""}:{className?:string}) {
- return <svg className={className} viewBox="0 0 600 710" role="img" aria-label="Washed black oversized Radiant Cross tee with white Southern Cross and nail cross chest details">
-  <defs><linearGradient id="shirtFabric" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#242428"/><stop offset=".42" stopColor="#161619"/><stop offset="1" stopColor="#242427"/></linearGradient><linearGradient id="sleeve" x1="0" x2="1"><stop stopColor="#19191b"/><stop offset=".6" stopColor="#28282a"/><stop offset="1" stopColor="#151517"/></linearGradient></defs>
-  <path d="M174 73 225 49 Q300 78 375 49 L426 73 526 135 594 300 480 337 455 289 455 661 Q300 681 145 661 L145 289 120 337 6 300 74 135Z" fill="url(#shirtFabric)" stroke="#272729" strokeWidth="2"/>
-  <path d="M174 73 74 135 6 300 120 337 145 289 145 164Z" fill="url(#sleeve)" opacity=".48"/><path d="M426 73 526 135 594 300 480 337 455 289 455 164Z" fill="url(#sleeve)" opacity=".42"/>
-  <path d="M225 49 Q300 86 375 49 Q353 97 300 101 Q247 97 225 49Z" fill="#0a0a0c" stroke="#303034" strokeWidth="6"/><path d="M231 57 Q300 90 369 57" fill="none" stroke="#363639" strokeWidth="2"/>
-  <path d="M145 653 Q300 666 455 653 M14 291 121 325 M486 325 585 291" stroke="#36363a" opacity=".55" strokeWidth="2" fill="none"/>
-  <g fill="#f3f2ed" transform="translate(207 178) scale(.43)"><path d="M60 3 64 14 75 17 64 20 60 31 56 20 45 17 56 14Z"/><path d="M22 52 26 63 37 66 26 69 22 80 18 69 7 66 18 63Z"/><path d="M99 47 103 58 114 61 103 64 99 75 95 64 84 61 95 58Z"/><path d="M59 93 63 104 74 107 63 110 59 121 55 110 44 107 55 104Z"/><path d="M72 75 74 81 80 83 74 85 72 91 70 85 64 83 70 81Z"/></g>
-  <path d="M385 180 389 180 389 200 404 199 408 202 404 205 389 204 387 249 385 204 371 205 367 202 371 199 385 200Z" fill="#f3f2ed"/>
- </svg>
+function Tee({ className = "" }: { className?: string }) {
+  return <svg className={className} viewBox="0 0 600 710" role="img" aria-label="Black boxy Radiant Cross tee with Southern Cross stars and cross embroidery">
+    <defs><linearGradient id="fabric" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#242426"/><stop offset=".46" stopColor="#101012"/><stop offset="1" stopColor="#262629"/></linearGradient></defs>
+    <path d="M174 73 225 49 Q300 78 375 49 L426 73 526 135 594 300 480 337 455 289 455 661 Q300 681 145 661 L145 289 120 337 6 300 74 135Z" fill="url(#fabric)" stroke="#29292a" strokeWidth="2"/>
+    <path d="M225 49 Q300 86 375 49 Q353 97 300 101 Q247 97 225 49Z" fill="#080809" stroke="#343436" strokeWidth="6"/><path d="M145 653 Q300 666 455 653 M14 291 121 325 M486 325 585 291" stroke="#3b3b3b" opacity=".55" strokeWidth="2" fill="none"/>
+    <g fill="#f2f2ed" transform="translate(205 176) scale(.38)"><path d="M60 3 64 14 75 17 64 20 60 31 56 20 45 17 56 14Z"/><path d="M22 52 26 63 37 66 26 69 22 80 18 69 7 66 18 63Z"/><path d="M99 47 103 58 114 61 103 64 99 75 95 64 84 61 95 58Z"/><path d="M59 93 63 104 74 107 63 110 59 121 55 110 44 107 55 104Z"/><path d="M72 75 74 81 80 83 74 85 72 91 70 85 64 83 70 81Z"/></g>
+    <path d="M385 180 389 180 389 200 404 199 408 202 404 205 389 204 387 249 385 204 371 205 367 202 371 199 385 200Z" fill="#f3f3f0"/>
+  </svg>;
 }
-export default function Home(){
- const [menu,setMenu]=useState(false);
- return <main>
-  <div className="announcement">AUSTRALIAN TRAINING &amp; LIFESTYLE <span className="announcement-star">✳</span> BUILT BY DISCIPLINE</div>
-  <header className="header"><a className="brand" href="#" aria-label="Radiant Cross home"><NailCross/><span>RADIANT CROSS</span></a>
-   <nav className={menu?"nav open":"nav"} aria-label="Main navigation"><a href="#collection" onClick={()=>setMenu(false)}>Collection</a><a href="#story" onClick={()=>setMenu(false)}>Our story</a><a href="#details" onClick={()=>setMenu(false)}>Our values</a></nav>
-   <a href="#contact" className="header-cta">GET IN TOUCH <span>↗</span></a><button className="menu-toggle" onClick={()=>setMenu(!menu)} aria-label="Toggle menu" aria-expanded={menu}>{menu?"CLOSE":"MENU"} <span>{menu?"×":"+"}</span></button>
-  </header>
-  <section className="hero" id="top">
-   <div className="hero-left"><div className="hero-overline"><span className="dot"/> AUSTRALIAN TRAINING &amp; LIFESTYLE <span className="line"/></div>
-    <h1>BUILT BY<br/><em>DISCIPLINE.</em></h1>
-    <p>Discipline isn’t something you switch on at the gym. It’s how you train, how you work, and how you live.</p>
-    <a href="#collection" className="button-light">MEET THE ORIGINAL TEE <span>↗</span></a>
-    <div className="hero-bottom"><span>DISCIPLINE. STRENGTH. FAITH.</span><span>EST. AUSTRALIA — 2026</span></div>
-   </div>
-   <div className="hero-right"><div className="hero-halo"/><div className="hero-symbol"><NailCross/></div><div className="hero-shirt"><Shirt/></div><span className="hero-photo-caption">THE ORIGINAL TEE / 001</span><div className="hero-side">ONE TEE. ONE PHILOSOPHY.</div></div>
-  </section>
-  <section className="intro" id="story"><span className="eyebrow">01 / THE IDEA</span><div><h2>SHOW UP.<br/><i>EVERY DAY.</i></h2><p>Discipline goes beyond the gym. It lives in the early mornings, the work nobody sees, the commitments we keep, and the people we show up for. Radiant Cross is an independent Australian training and lifestyle label built around that belief.</p></div><SouthernCross className="intro-stars"/></section>
-  <section className="collection" id="collection">
-    <div className="section-head"><div><span className="eyebrow">02 / COLLECTION 001</span><h2>ONE TEE.<br/><i>ONE PHILOSOPHY.</i></h2></div><p>Our first piece. Simple by design. Made to represent something bigger than what you wear.</p></div>
-    <div className="single-product">
-      <div className="single-product-visual"><div className="product-top"><span>RC / 001</span><span>THE ORIGINAL</span></div><Shirt className="single-shirt"/><span className="single-caption">FRONT / BLACK</span></div>
-      <div className="single-product-copy"><span className="eyebrow">THE FIRST RELEASE</span><h3>The Original<br/>Tee.</h3><p>Clean. Understated. Intentional. A black oversized tee featuring two small white symbols: the Southern Cross for our Australian roots, and the nail cross for faith.</p>
-        <div className="product-feature"><SouthernCross/><div><strong>ROOTED IN AUSTRALIA</strong><span>A quiet nod to where we come from.</span></div></div>
-        <div className="product-feature"><NailCross/><div><strong>FAITH, WITHOUT THE NOISE</strong><span>One part of the story. Never the entire story.</span></div></div>
-        <div className="product-availability"><span className="availability-dot"/> FIRST RELEASE IN PREPARATION</div>
-        <a className="button-dark" href="#contact">FOLLOW THE FIRST RELEASE <span>↗</span></a>
-        <small>Concept preview. Final fit, fabric, price and release details to be confirmed.</small>
+export default function Home() {
+  const [menuOpen,setMenuOpen]=useState(false);
+  return <main id="top">
+    <div className="topline">AUSTRALIAN TRAINING &amp; LIFESTYLE <span>✳</span> BUILT BY DISCIPLINE</div>
+    <header className="site-header">
+      <a href="#top" className="logo" aria-label="Radiant Cross home"><Cross/><span>RADIANT CROSS</span></a>
+      <nav className={menuOpen?"nav nav-open":"nav"} aria-label="Primary navigation"><a href="#collection" onClick={()=>setMenuOpen(false)}>THE COLLECTION</a><a href="#ethos" onClick={()=>setMenuOpen(false)}>OUR ETHOS</a><a href="#about" onClick={()=>setMenuOpen(false)}>OUR STORY</a></nav>
+      <a href="#collection" className="header-link">EXPLORE THE TEE <span>↗</span></a>
+      <button className="mobile-toggle" aria-expanded={menuOpen} aria-label="Toggle navigation" onClick={()=>setMenuOpen(!menuOpen)}>{menuOpen?"CLOSE −":"MENU +"}</button>
+    </header>
+
+    <section className="hero" aria-labelledby="hero-title">
+      <div className="hero-photography">
+        <div className="photo-grain"/>
+        <div className="hero-photo-caption"><span>RC — 001</span><span>EVERYDAY DISCIPLINE / AUSTRALIA</span></div>
+        <div className="hero-photo-mark"><Cross/></div>
       </div>
-    </div>
-  </section>
-  <section className="manifesto" id="details"><div className="manifesto-overlay"/><div className="manifesto-content"><span className="eyebrow">03 / WHAT WE BELIEVE</span><NailCross/><h2>DISCIPLINE.<br/>STRENGTH.<br/><em>FAITH.</em></h2><p>Discipline is the foundation. In training. In work. In faith. In family. In how we represent Australia. Different parts of life, the same commitment to showing up.</p></div><SouthernCross className="manifesto-stars"/></section>
-  <section className="contact" id="contact"><div><span className="eyebrow">04 / NEXT CHAPTER</span><h2>THE FIRST<br/><i>CHAPTER.</i></h2><p>One tee. A brand built with purpose. The Original Tee is taking shape. For collaborations or enquiries about the first release, reach out and say hello.</p><a className="button-dark" href="mailto:hello@radiantcross.au?subject=Radiant%20Cross%20enquiry">CONTACT THE BRAND <span>↗</span></a><small>Email address will be available once configured.</small></div><div className="contact-art"><NailCross/><span>AUSTRALIAN BY ORIGIN.<br/>BUILT BY DISCIPLINE.</span></div></section>
-  <footer className="footer"><div className="footer-top"><a href="#" className="footer-wordmark">RADIANT<br/>CROSS</a><div><a href="#collection">Collection</a><a href="#story">About</a><a href="mailto:hello@radiantcross.au">Contact</a></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} RADIANT CROSS</span><span>AUSTRALIA</span><a href="#top">BACK TO TOP ↑</a></div></footer>
- </main>
+      <div className="hero-message">
+        <div className="hero-number">01 / THE FIRST CHAPTER</div>
+        <h1 id="hero-title">BUILT BY<br/><em>DISCIPLINE.</em></h1>
+        <div className="hero-message-bottom"><p>For the work nobody sees. The early starts, the extra reps, and the choice to show up again tomorrow.</p><a className="pill-button" href="#collection">DISCOVER THE ORIGINAL TEE <span>↗</span></a></div>
+      </div>
+    </section>
+
+    <div className="ticker" aria-label="Brand values"><span>DISCIPLINE FIRST</span><b>✳</b><span>MADE FOR THE EVERYDAY</span><b>✳</b><span>ROOTED IN AUSTRALIA</span><b>✳</b><span>DISCIPLINE FIRST</span><b>✳</b><span>MADE FOR THE EVERYDAY</span></div>
+
+    <section id="collection" className="collection">
+      <div className="section-heading"><div><span className="kicker">THE COLLECTION / 001</span><h2>THE ORIGINAL <i>TEE.</i></h2></div><span className="section-index">ONE PIECE. NO SHORTCUTS.</span></div>
+      <div className="product-layout">
+        <div className="product-image"><span className="product-corner">01 / 01</span><Tee className="product-tee"/><span className="product-image-caption">BLACK / FRONT VIEW</span></div>
+        <div className="product-info">
+          <span className="kicker">INTRODUCING / RC-001</span>
+          <h3>YOUR EVERYDAY<br/>UNIFORM.</h3>
+          <p>An oversized black tee with a clean boxy silhouette. Subtle Southern Cross stars and a small cross sit across the chest. Made to carry a simple reminder: discipline travels with you.</p>
+          <div className="product-attributes"><div><strong>01</strong><span>OVERSIZED, RELAXED FIT</span></div><div><strong>02</strong><span>TIMELESS BLACK</span></div><div><strong>03</strong><span>MINIMAL SYMBOL DETAIL</span></div></div>
+          <div className="product-status"><span className="status-dot"/> FIRST RELEASE IN DEVELOPMENT</div>
+          <a href="#contact" className="pill-button dark">ENQUIRE ABOUT THE RELEASE <span>↗</span></a>
+          <small>Concept garment shown. Final specifications, pricing and availability are still to be confirmed.</small>
+        </div>
+      </div>
+    </section>
+
+    <section id="ethos" className="ethos"><span className="kicker">OUR ETHOS / 002</span><h2>IT&apos;S MORE<br/>THAN <i>TRAINING.</i></h2><div className="ethos-bottom"><p>Discipline is a way of living. In the gym, at work, with family and in faith. It&apos;s not about being perfect. It&apos;s about showing up and putting in the work, every day.</p><div className="ethos-icons"><Stars/><Cross/></div></div></section>
+
+    <section id="about" className="story"><div className="story-image"><div className="story-image-caption">BUILT IN AUSTRALIA / WORN EVERYWHERE</div></div><div className="story-content"><span className="kicker">THE STORY / 003</span><h2>ROOTED HERE.<br/><i>BUILT FOR MORE.</i></h2><p>Radiant Cross is an independent Australian training and lifestyle label. A love for gym culture, a respect for hard work, and the belief that the things we do every day shape who we become.</p><p>Our Southern Cross speaks to home. Our cross represents faith. Neither needs to shout. Discipline is what ties it all together.</p><a href="#contact" className="text-link">GET IN TOUCH <span>↗</span></a></div></section>
+
+    <section id="contact" className="closing"><Cross/><span className="kicker">THE FIRST CHAPTER IS JUST BEGINNING</span><h2>SHOW UP.<br/><i>EVERY DAY.</i></h2><p>For collaborations and first-release enquiries.</p><a href="mailto:hello@radiantcross.au?subject=Radiant%20Cross%20enquiry" className="pill-button">CONTACT RADIANT CROSS <span>↗</span></a><small>Email contact is pending setup.</small></section>
+    <footer className="footer"><div className="footer-main"><a href="#top" className="footer-logo"><Cross/> RADIANT CROSS</a><div className="footer-links"><a href="#collection">COLLECTION</a><a href="#ethos">ETHOS</a><a href="#about">STORY</a><a href="#contact">CONTACT</a></div></div><div className="footer-meta"><span>© {new Date().getFullYear()} RADIANT CROSS</span><span>AUSTRALIAN TRAINING &amp; LIFESTYLE</span><a href="#top">BACK TO TOP ↑</a></div></footer>
+  </main>;
 }
