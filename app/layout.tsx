@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Radiant Cross — Australian Streetwear",
-  description: "Australian streetwear. Dark undertones. Timeless design. Faith. Strength. Discipline.",
+  title: "Radiant Cross — Built by Discipline",
+  description: "Australian training and lifestyle apparel. Discipline in the gym, at work and in life. Collection 001: The Original Tee.",
   metadataBase: new URL("https://radiantcross.au"),
   openGraph: {
-    title: "Radiant Cross — Australian Streetwear",
-    description: "Minimal by design. The first chapter is coming.",
+    title: "Radiant Cross — Built by Discipline",
+    description: "One tee. One philosophy. Australian training and lifestyle apparel built by discipline.",
     type: "website",
     siteName: "Radiant Cross",
   },
