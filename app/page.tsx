@@ -1,16 +1,10 @@
-function Cross() {
-  return (
-    <svg className="cross" viewBox="0 0 80 140" fill="none" aria-label="Radiant Cross" role="img">
-      <path d="M38 3 43 3 43 43 72 42 78 46 72 50 43 49 41 137 38 49 8 50 2 46 8 42 38 43Z" fill="currentColor" />
-    </svg>
-  );
-}
+import Image from "next/image";
 
 export default function Home() {
   return (
     <main className="page">
       <div className="center">
-        <Cross />
+        <Image className="cross" src="/radiant-cross-logo.png" alt="Radiant Cross" width={240} height={240} priority />
         <p className="coming-soon">COMING SOON</p>
         <form className="signup" action="https://formsubmit.co/hello@radiantcross.au" method="POST">
           <input type="hidden" name="_subject" value="Radiant Cross — New email signup" />
