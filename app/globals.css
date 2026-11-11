@@ -5,7 +5,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-w
 a{color:inherit;text-decoration:none}
 .landing{min-height:100svh;position:relative;isolation:isolate;color:#fff;display:flex;flex-direction:column;overflow:hidden}
 .hero-photo,.hero-shade{position:absolute;inset:0;z-index:-1}
-.hero-photo{background-image:url('https://cdn.shopify.com/s/files/1/0788/3076/4106/files/Australian_Gym_Duo_in_Warm_Warehouse_Lighting.png?v=1794404022');background-size:cover;background-position:center 47%;background-repeat:no-repeat}
+.hero-photo{background-image:url('https://cdn.shopify.com/s/files/1/0788/3076/4106/files/Matching_Star_Emblem_Gymwear_Duo.png?v=1794404679');background-size:cover;background-position:center 47%;background-repeat:no-repeat}
 
 /* Soft photographic haze and fine film grain — only over the background image. */
 .hero-shade::before,.hero-shade::after{content:"";position:absolute;inset:0;pointer-events:none}
