@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <main className="page">
       <div className="center">
-        <Image className="cross" src="/radiant-cross-logo.png" alt="Radiant Cross" width={240} height={240} priority />
+        <Image className="cross" src="/southern-cross-black.svg" alt="Radiant Cross" width={240} height={240} priority />
         <p className="coming-soon">COMING SOON</p>
         <form className="signup" action="https://formsubmit.co/hello@radiantcross.au" method="POST">
           <input type="hidden" name="_subject" value="Radiant Cross — New email signup" />
