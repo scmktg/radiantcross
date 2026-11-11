@@ -1,89 +1,41 @@
 "use client";
-
 import { useMemo, useState } from "react";
 import type { Product, Variant } from "../../lib/shopify";
-
-type PreviewColour = "Black" | "Sand";
-function Stars({ light = false }: { light?: boolean }) {
-  return <svg aria-hidden="true" viewBox="0 0 80 85" className="shirt-stars" fill={light ? "#ffffff" : "#b9a389"}>
-    <path d="M32 4 35.6 13.5 45.7 13.9 37.7 20.3 40.7 30 32 24.3 23.3 30 26.3 20.3 18.3 13.9 28.4 13.5Z"/>
-    <path d="M12 34 15.2 42.5 24.3 42.8 17.1 48.7 19.8 57.4 12 52.3 4.2 57.4 6.9 48.7 -.3 42.8 8.8 42.5Z"/>
-    <path d="M59 30 62.2 38.5 71.3 38.8 64.1 44.7 66.8 53.4 59 48.3 51.2 53.4 53.9 44.7 46.7 38.8 55.8 38.5Z"/>
-    <path d="M36 43 37.7 47.5 42.5 47.7 38.7 50.7 40.1 55.3 36 52.6 31.9 55.3 33.3 50.7 29.5 47.7 34.3 47.5Z"/>
-    <path d="M27 65 30.2 73.5 39.3 73.8 32.1 79.7 34.8 88.4 27 83.3 19.2 88.4 21.9 79.7 14.7 73.8 23.8 73.5Z"/>
-  </svg>;
+type Colour = "Black" | "Sand";
+const colours: Colour[] = ["Black", "Sand"];
+const sizes = ["XS","S","M","L","XL","2XL"];
+const money = (amount:string, code:string) => new Intl.NumberFormat("en-AU",{style:"currency",currency:code}).format(Number(amount));
+function matches(p:Product,c:Colour){return (p.title+" "+p.handle).toLowerCase().includes(c.toLowerCase())||p.variants.nodes.some(v=>v.selectedOptions.some(o=>/^(color|colour)$/i.test(o.name)&&o.value.toLowerCase()===c.toLowerCase()));}
+function Picture({product,colour,extra=""}:{product?:Product;colour:Colour;extra?:string}){
+ const photo=product?.featuredImage||product?.images.nodes[0];
+ return <div className={`picture picture-${colour.toLowerCase()} ${extra}`}>{photo?<img src={photo.url} alt={photo.altText||`Southern Cross Tee in ${colour}`}/>:<span>{colour}</span>}</div>;
 }
-function Tee({ colour, large = false }: { colour: PreviewColour; large?: boolean }) {
-  return <div className={`tee-stage tee-${colour.toLowerCase()} ${large ? "tee-large" : ""}`} aria-label={`${colour} oversized tee with a small Southern Cross logo`} role="img">
-    <svg className="tee-outline" viewBox="0 0 470 490" aria-hidden="true">
-      <path d="M151 33 192 16 Q235 39 278 16 L319 33 Q391 60 458 131 L403 208 348 181 351 458 119 458 122 181 67 208 12 131 Q79 60 151 33Z" fill={colour === "Black" ? "#1c1d1e" : "#eae4da"} stroke={colour === "Black" ? "#292a2b" : "#ddd5c9"} strokeWidth="1.7"/>
-      <path d="M192 16 Q235 96 278 16" fill="none" stroke={colour === "Black" ? "#363638" : "#d5cec2"} strokeWidth="13"/>
-      <path d="M192 16 Q235 82 278 16" fill="none" stroke={colour === "Black" ? "#151617" : "#eee8e0"} strokeWidth="7"/>
-      <path d="M119 448 H351 M25 146 78 188 M445 146 392 188" fill="none" stroke={colour === "Black" ? "#333436" : "#d1c9bc"} strokeWidth="1.2"/>
-    </svg><div className="tee-mark"><Stars light={colour === "Black"} /></div>
-  </div>;
-}
-function Chevron() { return <span aria-hidden="true">↗</span>; }
-
-export default function Storefront({ products, configured }: { products: Product[]; configured: boolean }) {
-  const [activeColour, setActiveColour] = useState<PreviewColour>("Black");
-  const [size, setSize] = useState("M");
-  const [quantity, setQuantity] = useState(1);
-  const [pending, setPending] = useState(false);
-  const [notice, setNotice] = useState("");
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
-  const matchingProduct = useMemo(() => products.find(p => (p.title + " " + p.handle).toLowerCase().includes(activeColour.toLowerCase())) || products[activeColour === "Black" ? 0 : 1] || products[0], [products, activeColour]);
-  const product = selectedProduct || matchingProduct;
-  const variants = product?.variants.nodes || [];
-  const selectedVariant: Variant | undefined = variants.find(v => v.selectedOptions.some(o => o.name.toLowerCase() === "size" && o.value.toLowerCase() === size.toLowerCase()) && (!v.selectedOptions.some(o => o.name.toLowerCase() === "color" || o.name.toLowerCase() === "colour") || v.selectedOptions.some(o => (o.name.toLowerCase() === "color" || o.name.toLowerCase() === "colour") && o.value.toLowerCase() === activeColour.toLowerCase()))) || variants.find(v => v.title.toLowerCase().includes(size.toLowerCase()) && v.title.toLowerCase().includes(activeColour.toLowerCase())) || variants.find(v => v.selectedOptions.some(o => o.value.toLowerCase() === size.toLowerCase())) || (variants.length === 1 ? variants[0] : undefined);
-  const price = selectedVariant?.price || variants[0]?.price;
-  const productImage = product?.featuredImage?.url;
-
-  async function checkout() {
-    if (!selectedVariant?.availableForSale || pending) return;
-    setPending(true); setNotice("");
-    try {
-      const res = await fetch("/api/cart", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ variantId: selectedVariant.id, quantity }) });
-      const data = await res.json();
-      if (!res.ok || !data.checkoutUrl) throw new Error(data.error || "Couldn't open checkout.");
-      window.location.assign(data.checkoutUrl);
-    } catch (error) { setNotice(error instanceof Error ? error.message : "Couldn't open checkout."); setPending(false); }
-  }
-
-  function pickColour(colour: PreviewColour) { setActiveColour(colour); setSelectedProduct(undefined); setNotice(""); setSize("M"); }
-  return <>
-    <div className="announcement">AUSTRALIAN AT HEART. BUILT FOR EVERY DAY.</div>
-    <header className="site-header">
-      <a href="#" className="brand" aria-label="Radiant Cross home"><img src="/southern-cross-black.svg" alt="" width="28" height="30" /><span>RADIANT CROSS<span className="brand-dot">.</span></span></a>
-      <nav className={menuOpen ? "navigation is-open" : "navigation"} aria-label="Main navigation">
-        <a href="#collection" onClick={() => setMenuOpen(false)}>SHOP ALL</a>
-        <a href="#story" onClick={() => setMenuOpen(false)}>OUR STORY</a>
-      </nav>
-      <div className="header-end"><span className="header-aus">EST. AUSTRALIA</span><a className="header-shop" href="#collection">EXPLORE COLLECTION <Chevron /></a><button className="mobile-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle navigation" aria-expanded={menuOpen}>{menuOpen ? "CLOSE" : "MENU"}</button></div>
-    </header>
-    <main>
-      <section className="hero" aria-labelledby="hero-title">
-        <div className="hero-copy"><span className="eyebrow"><span className="status-dot" /> COLLECTION 001 — THE BEGINNING</span><h1 id="hero-title">MADE FOR<br/><span>THE EVERYDAY.</span></h1><p>Rooted in Australia. Built for those who show up, put in the work, and do it all again tomorrow.</p><a href="#collection" className="button button-dark">EXPLORE THE COLLECTION <Chevron /></a><div className="hero-index">01 / 02 <span>THE ORIGINAL TEE</span></div></div>
-        <div className="hero-art" aria-label="Radiant Cross Black and Sand oversized tees"><div className="hero-arc" /><div className="hero-tee hero-back"><Tee colour="Sand" large /></div><div className="hero-tee hero-front"><Tee colour="Black" large /></div><div className="hero-art-caption">NO SHORTCUTS. JUST THE WORK. <span>↘</span></div></div>
-      </section>
-      <section className="values-strip" aria-label="Brand values"><span>DESIGNED TO MOVE</span><span className="separator">✳</span><span>MADE TO LAST</span><span className="separator">✳</span><span>PROUDLY AUSTRALIAN</span><span className="separator">✳</span><span>BUILT BY DISCIPLINE</span></section>
-      <section className="collection section-pad" id="collection" aria-labelledby="collection-title"><div className="section-top"><div><span className="eyebrow">THE FIRST DROP / 001</span><h2 id="collection-title">The essentials<span className="punctuation">.</span></h2></div><p>One signature silhouette. Two timeless colours.<br/>Nothing more than you need.</p></div>
-        <div className="product-grid">
-          {(["Black","Sand"] as PreviewColour[]).map((colour, i) => { const p = products.find(pr => (pr.title + " " + pr.handle).toLowerCase().includes(colour.toLowerCase())) || products[i]; const photo = p?.featuredImage?.url; return <a href="#product" onClick={() => {pickColour(colour);setSelectedProduct(p)}} className="product-tile" key={colour}><div className={`product-image product-${colour.toLowerCase()}`}>{photo ? <img src={photo} alt={p?.featuredImage?.altText || `${colour} Southern Cross tee`} /> : <Tee colour={colour} />}{!configured && <span className="product-corner">COMING SOON</span>}<span className="quick-view">DISCOVER TEE <Chevron /></span></div><div className="product-meta"><div><h3>THE SOUTHERN CROSS TEE</h3><p>{colour.toUpperCase()} / OVERSIZED FIT</p></div><span>{p?.variants.nodes[0] ? new Intl.NumberFormat("en-AU",{style:"currency",currency:p.variants.nodes[0].price.currencyCode}).format(Number(p.variants.nodes[0].price.amount)) : "DROP 001"}</span></div></a> })}
-        </div>
-      </section>
-      <section className="manifesto" id="story"><div className="manifesto-star"><img src="/southern-cross-white.svg" alt="" /></div><div className="manifesto-copy"><span className="eyebrow">A LITTLE DIFFERENT BY DESIGN</span><h2>NO NOISE.<br/>NO EXCUSES.<br/><em>JUST SHOW UP.</em></h2><p>For early starts, late finishes and everything in between. Radiant Cross is an everyday uniform for the pursuit of better.</p><span className="manifesto-signoff">BORN IN AUSTRALIA. WORN EVERYWHERE.</span></div></section>
-      <section className="detail section-pad" id="product"><div className="detail-visual">{productImage ? <img src={productImage} alt={product?.featuredImage?.altText || "Southern Cross tee"} /> : <Tee colour={activeColour} large />}<span className="detail-label">THE ORIGINAL / COLLECTION 001</span></div><div className="detail-copy"><span className="eyebrow">RADIANT CROSS / 001</span><h2>The Southern<br/>Cross Tee<span className="punctuation">.</span></h2><p className="detail-description">An everyday essential with an unmistakably Australian signature. A clean oversized silhouette, a minimal Southern Cross chest mark, and nothing unnecessary.</p><div className="detail-price">{price ? new Intl.NumberFormat("en-AU",{style:"currency",currency:price.currencyCode}).format(Number(price.amount)) : "PRICE TO BE ANNOUNCED"} <span>{price ? "AUD" : "COLLECTION 001"}</span></div>
-        <div className="control-block"><div className="control-label">COLOUR <strong>{activeColour.toUpperCase()}</strong></div><div className="colour-options"><button onClick={() => pickColour("Black")} className={activeColour === "Black" ? "colour-option selected" : "colour-option"} aria-label="Black" aria-pressed={activeColour === "Black"}><span className="swatch black-swatch"/></button><button onClick={() => pickColour("Sand")} className={activeColour === "Sand" ? "colour-option selected" : "colour-option"} aria-label="Sand" aria-pressed={activeColour === "Sand"}><span className="swatch sand-swatch"/></button></div></div>
-        <div className="control-block"><div className="control-label">SIZE <span>RELAXED OVERSIZED FIT</span></div><div className="size-options">{["XS","S","M","L","XL","2XL"].map(s => <button key={s} onClick={() => {setSize(s);setNotice("")}} className={size===s ? "size-option selected" : "size-option"} aria-pressed={size===s}>{s}</button>)}</div></div>
-        <div className="purchase-actions"><div className="quantity-control"><button onClick={() => setQuantity(Math.max(1,quantity-1))} aria-label="Decrease quantity">−</button><output>{quantity}</output><button onClick={() => setQuantity(Math.min(20,quantity+1))} aria-label="Increase quantity">+</button></div><button className="button button-dark buy-button" onClick={checkout} disabled={!configured || !selectedVariant?.availableForSale || pending}>{pending ? "OPENING CHECKOUT…" : !configured ? "COMING SOON" : !selectedVariant ? "SELECT A SIZE" : !selectedVariant.availableForSale ? "SOLD OUT" : "BUY NOW"} <Chevron /></button></div>
-        {notice && <p className="form-error" role="alert">{notice}</p>}
-        {!configured && <p className="connection-note">Storefront preview. Shopify checkout will activate once the collection and Storefront API credentials are connected.</p>}
-        <div className="feature-list"><div><span>01</span> EVERYDAY OVERSIZED SILHOUETTE</div><div><span>02</span> SIGNATURE SOUTHERN CROSS CHEST MARK</div><div><span>03</span> CLEAN, UNPRINTED BACK</div></div>
-      </div></section>
-      <section className="closing"><img src="/southern-cross-black.svg" alt="" width="56" height="56" /><p>BUILT BY DISCIPLINE.</p><h2>Wear it your way<span className="punctuation">.</span></h2><a className="text-link" href="#collection">BACK TO THE COLLECTION <Chevron /></a></section>
-    </main>
-    <footer className="footer"><div className="footer-left"><span className="footer-brand">RADIANT CROSS.</span><p>AUSTRALIAN TRAINING & LIFESTYLE.</p></div><div className="footer-links"><a href="mailto:hello@radiantcross.au">CONTACT</a><a href="#story">ABOUT</a><a href="#collection">SHOP</a></div><span className="footer-copyright">© {new Date().getFullYear()} RADIANT CROSS AUSTRALIA</span></footer>
-  </>;
+export default function Storefront({products,configured}:{products:Product[];configured:boolean}){
+ const [colour,setColour]=useState<Colour>("Black"),[size,setSize]=useState("M"),[quantity,setQuantity]=useState(1),[busy,setBusy]=useState(false),[error,setError]=useState(""),[menu,setMenu]=useState(false);
+ const pair=useMemo(()=>({Black:products.find(p=>matches(p,"Black"))||(products.length===1?products[0]:undefined),Sand:products.find(p=>matches(p,"Sand"))||(products.length===1?products[0]:undefined)}),[products]);
+ const product=pair[colour];const variants=product?.variants.nodes||[];
+ const hasColourOption=product?.options.some(o=>/^(color|colour)$/i.test(o.name));
+ const variant:Variant|undefined=variants.find(v=>{
+  const optSize=v.selectedOptions.find(o=>/^size$/i.test(o.name)),optColour=v.selectedOptions.find(o=>/^(color|colour)$/i.test(o.name));
+  return (!optSize||optSize.value.toLowerCase()===size.toLowerCase())&&(!hasColourOption||optColour?.value.toLowerCase()===colour.toLowerCase())&&(Boolean(optSize)||variants.length===1);
+ });
+ const priced=variant?.price||variants.find(v=>!hasColourOption||v.selectedOptions.some(o=>/^(color|colour)$/i.test(o.name)&&o.value.toLowerCase()===colour.toLowerCase()))?.price;
+ const canBuy=configured&&Boolean(variant?.availableForSale);
+ function pick(c:Colour){setColour(c);setError("");}
+ async function buy(){if(!canBuy||!variant||busy)return;setBusy(true);setError("");try{const res=await fetch("/api/cart",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({variantId:variant.id,quantity})});const result=await res.json();if(!res.ok||!result.checkoutUrl)throw new Error(result.error||"Checkout unavailable");window.location.assign(result.checkoutUrl);}catch(e){setError(e instanceof Error?e.message:"Checkout unavailable");setBusy(false);}}
+ return <>
+  <header className="header"><a className="logo" href="#">RADIANT CROSS</a><nav className={menu?"nav open":"nav"} aria-label="Main navigation"><a href="#shop" onClick={()=>setMenu(false)}>Shop</a><a href="#about" onClick={()=>setMenu(false)}>About</a><a href="mailto:hello@radiantcross.au">Contact</a></nav><a className="header-link" href="#shop">Shop collection</a><button className="menu-button" aria-expanded={menu} onClick={()=>setMenu(!menu)}>{menu?"Close":"Menu"}</button></header>
+  <main>
+   <section className="hero"><div className="hero-text"><span className="kicker">COLLECTION 001</span><h1>The everyday<br/>essential.</h1><p>An oversized tee, made simple. Two timeless colours and an understated Australian signature.</p><a className="dark-button hero-button" href="#shop">Shop the collection</a></div><Picture product={pair.Sand} colour="Sand" extra="hero-photo"/></section>
+   <section className="collection wrap" id="shop"><div className="section-heading"><div><span className="kicker">RADIANT CROSS / 001</span><h2>Shop the collection</h2></div><p>One tee. Two colours.</p></div><div className="cards">{colours.map(c=>{const p=pair[c],price=p?.variants.nodes[0]?.price;return <a href="#product" onClick={()=>pick(c)} className="product-card" key={c}><Picture product={p} colour={c}/><div className="card-meta"><div><strong>Southern Cross Oversized Tee</strong><span>{c}</span></div><span>{price?money(price.amount,price.currencyCode):"Coming soon"}</span></div></a>})}</div></section>
+   <section className="product wrap" id="product"><div className="gallery"><Picture product={product} colour={colour}/>{product?.images.nodes.slice(1,3).map((image,i)=><div className="gallery-extra" key={image.url+i}><img src={image.url} alt={image.altText||"Additional tee view"}/></div>)}</div><div className="details"><span className="kicker">COLLECTION 001</span><h2>Southern Cross<br/>Oversized Tee</h2><p className="price">{priced?money(priced.amount,priced.currencyCode):"Coming soon"}</p><p className="description">A relaxed oversized silhouette with a subtle Southern Cross chest print and a clean, unprinted back. Made for every day.</p>
+    <div className="field"><div className="field-title"><strong>Colour</strong><span>{colour}</span></div><div className="colours">{colours.map(c=><button key={c} onClick={()=>pick(c)} aria-pressed={colour===c} className={colour===c?"colour active":"colour"}><span className={`swatch ${c.toLowerCase()}`}/>{c}</button>)}</div></div>
+    <div className="field"><div className="field-title"><strong>Size</strong><span>Oversized fit</span></div><div className="sizes">{sizes.map(s=><button key={s} aria-pressed={size===s} className={size===s?"size active":"size"} onClick={()=>{setSize(s);setError("");}}>{s}</button>)}</div></div>
+    <div className="purchase"><div className="quantity"><button onClick={()=>setQuantity(Math.max(1,quantity-1))} aria-label="Decrease quantity">−</button><output>{quantity}</output><button onClick={()=>setQuantity(Math.min(20,quantity+1))} aria-label="Increase quantity">+</button></div><button className="dark-button checkout" disabled={!canBuy||busy} onClick={buy}>{busy?"Opening checkout…":!configured?"Coming soon":!variant?"Unavailable":!variant.availableForSale?"Sold out":"Buy now"}</button></div>
+    {error&&<p className="error" role="alert">{error}</p>}{!configured&&<p className="note">Shopify products and checkout will appear when the store is connected.</p>}
+    <div className="specs"><p>Relaxed oversized fit</p><p>Minimal Southern Cross chest detail</p><p>Clean, unprinted back</p></div>
+   </div></section>
+   <section className="about" id="about"><span className="kicker">ABOUT RADIANT CROSS</span><h2>Less, but better.</h2><p>Australian training and lifestyle essentials. Thoughtful details, a simple approach, and the discipline to keep showing up.</p></section>
+  </main><footer className="footer"><div><strong>RADIANT CROSS</strong><p>Australian training and lifestyle.</p></div><nav><a href="#shop">Shop</a><a href="#about">About</a><a href="mailto:hello@radiantcross.au">Contact</a></nav><span>© {new Date().getFullYear()} Radiant Cross Australia</span></footer>
+ </>;
 }
